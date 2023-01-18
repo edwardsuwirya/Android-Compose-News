@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -14,6 +15,7 @@ import androidx.navigation.navArgument
 import com.enigmacamp.newsCompose.ui.screens.article.ArticleScreen
 import com.enigmacamp.newsCompose.ui.screens.category.CategoryScreen
 import com.enigmacamp.newsCompose.ui.screens.source.SourceScreen
+import com.enigmacamp.newsCompose.ui.screens.source.SourceViewModel
 
 @Composable
 fun NavGraph(
@@ -22,7 +24,7 @@ fun NavGraph(
     startDestination: String = Screens.Category.route
 ) {
     val dest = Navigator.destination
-    LaunchedEffect("navigation") {
+    LaunchedEffect(Unit) {
         dest.collect {
             Log.d("Nav", it)
             navController.navigate(it)
@@ -42,18 +44,33 @@ fun NavGraph(
         composable(route = "${Screens.Source.route}/{category}", arguments = listOf(
             navArgument("category") { type = NavType.StringType }
         )) {
+            BackHandler {
+                navController.navigateUp()
+            }
             val arguments = requireNotNull(it.arguments)
             val currentCategory = arguments.getString("category", "")
-            BackHandler {
-                navController.navigateUp()
+            val owner = LocalViewModelStoreOwner.current
+
+            owner?.let { vmOwner ->
+                val vm: SourceViewModel = viewModel(
+                    vmOwner,
+                    "SourceViewModel",
+                    SourceViewModel.factory
+                )
+                SourceScreen(vm, currentCategory)
             }
-            SourceScreen(currentCategory)
+
+
         }
-        composable(route = Screens.Article.route) {
+        composable(route = "${Screens.Article.route}/{sourceId}", arguments = listOf(
+            navArgument("sourceId") { type = NavType.StringType }
+        )) {
             BackHandler {
                 navController.navigateUp()
             }
-            ArticleScreen()
+            val arguments = requireNotNull(it.arguments)
+            val currentSourceId = arguments.getString("sourceId", "")
+            ArticleScreen(currentSourceId)
         }
     }
 }

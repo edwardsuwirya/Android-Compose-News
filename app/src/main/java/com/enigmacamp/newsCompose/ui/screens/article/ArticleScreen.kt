@@ -7,12 +7,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 
 @Composable
-fun ArticleScreen() {
+fun ArticleScreen(sourceId: String) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     )
     {
-        Text(text = "Article Screen")
+        Text(text = "Article Screen with $sourceId")
     }
 }

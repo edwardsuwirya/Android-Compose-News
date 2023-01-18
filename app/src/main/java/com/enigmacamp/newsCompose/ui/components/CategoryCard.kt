@@ -18,7 +18,7 @@ fun CategoryCard(category: Category, onClick: () -> Unit) {
         shape = RoundedCornerShape(10.dp),
         elevation = 10.dp,
         modifier = Modifier
-            .padding(14.dp)
+            .padding(16.dp)
             .clickable { onClick() }
 
     ) {

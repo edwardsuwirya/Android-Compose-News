@@ -9,7 +9,11 @@ sealed class Screens(val route: String, vararg params: String) {
         )
     }
 
-    object Article : Screens("article")
+    object Article : Screens("article", "sourceId") {
+        operator fun invoke(sourceId: String) = route.appendParams(
+            "sourceId" to sourceId
+        )
+    }
 }
 
 internal fun String.appendParams(vararg params: Pair<String, Any?>): String {
