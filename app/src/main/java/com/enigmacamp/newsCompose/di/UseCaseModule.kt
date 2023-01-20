@@ -13,6 +13,6 @@ import dagger.hilt.components.SingletonComponent
 class UseCaseModule {
     @Provides
     fun provideGetSourceList(sourceRepository: SourceRepository): GetSourceListUseCase {
-        return GetSourceListUseCase(sourceRepository::getAll)
+        return GetSourceListUseCase(sourceRepository)
     }
 }

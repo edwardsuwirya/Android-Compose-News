@@ -11,9 +11,8 @@ package com.enigmacamp.newsCompose.common
 //    class Error(errorMessage: String?) : UiState<Nothing>(errorMessage = errorMessage)
 //}
 
-sealed class UiState<out T : Any>(val isInit: Boolean? = false) {
-    class Init(init: Boolean = true) : UiState<Nothing>(init)
-    class Success<out T : Any>(val data: T?) : UiState<T>()
+sealed class UiState<out T : Any> {
+    class Success<out T : Any>(val data: T) : UiState<T>()
     object Loading : UiState<Nothing>()
     class Error(val errorMessage: String?) : UiState<Nothing>()
 }

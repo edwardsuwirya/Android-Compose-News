@@ -6,17 +6,13 @@ import com.enigmacamp.newsCompose.common.UiState
 import com.enigmacamp.newsCompose.navigation.Navigator
 import com.enigmacamp.newsCompose.usecase.GetSourceListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
 class SourceViewModel @Inject constructor(private val getSourceList: GetSourceListUseCase) :
     ViewModel() {
-    private var _sourceState = MutableStateFlow(SourceUiState(UiState.Init()))
+    private var _sourceState = MutableStateFlow(SourceUiState())
     val sourceState = _sourceState.asStateFlow()
 
     fun onEvent(event: SourceEvent) {
@@ -24,34 +20,39 @@ class SourceViewModel @Inject constructor(private val getSourceList: GetSourceLi
             is SourceEvent.SourceList -> getSources()
             is SourceEvent.SourceListRefresh -> refresh()
             is SourceEvent.SourceSelected -> Navigator.navigateToArticle(event.id, event.name)
-            else -> {}
         }
     }
 
     private fun getSources() {
-        if (sourceState.value.uiState.isInit == true) {
-            viewModelScope.launch(Dispatchers.IO) {
-                _sourceState.update {
-                    it.copy(uiState = UiState.Loading)
-                }
-                try {
-                    _sourceState.update {
+        if (sourceState.value.isInit) {
+            getSourceList().onEach { res ->
+                when (res) {
+                    is UiState.Loading -> _sourceState.update {
+                        it.copy(isLoading = true, isInit = false)
+                    }
+                    is UiState.Error -> _sourceState.update {
                         it.copy(
-                            uiState = UiState.Success(getSourceList()),
+                            isLoading = false,
+                            isInit = false,
+                            error = res.errorMessage.toString()
                         )
                     }
-                } catch (e: Exception) {
-                    _sourceState.update {
-                        it.copy(uiState = UiState.Error(errorMessage = e.message))
+                    is UiState.Success -> _sourceState.update {
+                        it.copy(
+                            isLoading = false,
+                            isInit = false,
+                            sources = res.data,
+                        )
                     }
                 }
-            }
+            }.launchIn(viewModelScope)
+
         }
     }
 
     private fun refresh() {
         _sourceState.update {
-            it.copy(uiState = UiState.Init())
+            it.copy(isInit = true, error = "", sources = emptyList())
         }
     }
 }
