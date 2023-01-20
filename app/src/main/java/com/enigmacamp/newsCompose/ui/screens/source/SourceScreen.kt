@@ -45,7 +45,7 @@ fun SourceScreen(
 @Composable
 fun Content(category: String, state: SourceUiState, onEvent: (SourceEvent) -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.padding(8.dp)) {
+        Column(modifier = Modifier.padding(4.dp)) {
             Text(text = "Source Screen - $category")
             Button(onClick = { onEvent(SourceEvent.SourceListRefresh) }) {
                 Text(text = "Refresh")
