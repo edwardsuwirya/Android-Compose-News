@@ -1,4 +1,4 @@
-package com.enigmacamp.newsCompose.utils
+package com.enigmacamp.newsCompose.common
 
 //sealed class UiState<out T>(
 //    val data: T? = null,

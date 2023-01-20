@@ -8,16 +8,16 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.enigmacamp.newsCompose.model.Source
 import com.enigmacamp.newsCompose.ui.components.Loading
 import com.enigmacamp.newsCompose.ui.components.SourceCard
-import com.enigmacamp.newsCompose.utils.UiState
+import com.enigmacamp.newsCompose.common.UiState
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SourceScreen(
-    viewModel: SourceViewModel = viewModel(factory = SourceViewModel.VMFactory),
+    viewModel: SourceViewModel = hiltViewModel(),
     category: String
 ) {
     val state = viewModel.sourceState.collectAsState().value

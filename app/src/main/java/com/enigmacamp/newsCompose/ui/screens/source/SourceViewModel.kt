@@ -1,19 +1,21 @@
 package com.enigmacamp.newsCompose.ui.screens.source
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.enigmacamp.newsCompose.common.UiState
 import com.enigmacamp.newsCompose.navigation.Navigator
-import com.enigmacamp.newsCompose.repository.SourceRepositoryImpl
 import com.enigmacamp.newsCompose.usecase.GetSourceListUseCase
-import com.enigmacamp.newsCompose.utils.UiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SourceViewModel(private val getSourceList: GetSourceListUseCase) : ViewModel() {
+@HiltViewModel
+class SourceViewModel @Inject constructor(private val getSourceList: GetSourceListUseCase) :
+    ViewModel() {
     private var _sourceState = MutableStateFlow(SourceUiState(UiState.Init()))
     val sourceState = _sourceState.asStateFlow()
 
@@ -22,6 +24,7 @@ class SourceViewModel(private val getSourceList: GetSourceListUseCase) : ViewMod
             is SourceEvent.SourceList -> getSources()
             is SourceEvent.SourceListRefresh -> refresh()
             is SourceEvent.SourceSelected -> Navigator.navigateToArticle(event.id, event.name)
+            else -> {}
         }
     }
 
@@ -49,13 +52,6 @@ class SourceViewModel(private val getSourceList: GetSourceListUseCase) : ViewMod
     private fun refresh() {
         _sourceState.update {
             it.copy(uiState = UiState.Init())
-        }
-    }
-
-    companion object VMFactory : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            val repo = SourceRepositoryImpl()
-            return SourceViewModel(repo::getAll) as T
         }
     }
 }
