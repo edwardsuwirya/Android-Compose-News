@@ -1,17 +1,17 @@
 package com.enigmacamp.newsCompose.navigation
 
 
-sealed class Screens(val route: String, vararg params: String) {
+sealed class Screens(val route: String) {
     object Category : Screens("category")
-    object Source : Screens("source", "category") {
+    object Source : Screens("source") {
         operator fun invoke(category: String) = route.appendParams(
             "category" to category
         )
     }
 
-    object Article : Screens("article", "sourceId") {
-        operator fun invoke(sourceId: String) = route.appendParams(
-            "sourceId" to sourceId
+    object Article : Screens("article") {
+        operator fun invoke(sourceId: String, sourceName: String) = route.appendParams(
+            "sourceId" to sourceId, "sourceName" to sourceName
         )
     }
 }

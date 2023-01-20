@@ -8,6 +8,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.enigmacamp.newsCompose.model.Source
 import com.enigmacamp.newsCompose.ui.components.Loading
 import com.enigmacamp.newsCompose.ui.components.SourceCard
@@ -15,28 +16,33 @@ import com.enigmacamp.newsCompose.utils.UiState
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun SourceScreen(viewModel: SourceViewModel, category: String) {
-    val sources = viewModel.sourceListResponse
+fun SourceScreen(
+    viewModel: SourceViewModel = viewModel(factory = SourceViewModel.VMFactory),
+    category: String
+) {
+    val state = viewModel.sourceState.collectAsState().value
     val s = rememberScaffoldState()
 
-    if (sources.value.uiState is UiState.Error) {
-        LaunchedEffect(Unit) {
-            val result = s.snackbarHostState.showSnackbar(
-                message = "Error",
-                duration = SnackbarDuration.Short
+    with(state) {
+        if (uiState is UiState.Error) {
+            LaunchedEffect(Unit) {
+                s.snackbarHostState.showSnackbar(
+                    message = "Error",
+                    duration = SnackbarDuration.Short
+                )
+            }
+        }
+
+        LaunchedEffect(uiState.isInit) {
+            viewModel.onEvent(SourceEvent.SourceList)
+        }
+        Scaffold(scaffoldState = s) {
+            Content(
+                category = category,
+                state = uiState,
+                onEvent = viewModel::onEvent
             )
         }
-    }
-
-    LaunchedEffect(sources.value.uiState.isInit) {
-        viewModel.onEvent(SourceEvent.SourceList)
-    }
-    Scaffold(scaffoldState = s) {
-        Content(
-            category = category,
-            state = sources.value.uiState,
-            onEvent = viewModel::onEvent
-        )
     }
 }
 
@@ -60,7 +66,7 @@ fun Content(category: String, state: UiState<List<Source>>, onEvent: (SourceEven
                         ) {
                             items(list) { s ->
                                 SourceCard(s) {
-                                    onEvent(SourceEvent.SourceSelected(it))
+                                    onEvent(SourceEvent.SourceSelected(it.id, it.title))
                                 }
                             }
                         }

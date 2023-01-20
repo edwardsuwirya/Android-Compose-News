@@ -15,7 +15,6 @@ import com.enigmacamp.newsCompose.ui.theme.SimplenewscomposeTheme
 
 @Composable
 fun CategoryScreen(viewModel: CategoryViewModel = viewModel()) {
-    val state = viewModel.state
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,

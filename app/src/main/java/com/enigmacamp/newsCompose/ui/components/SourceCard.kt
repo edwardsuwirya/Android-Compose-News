@@ -16,13 +16,13 @@ import androidx.compose.ui.unit.sp
 import com.enigmacamp.newsCompose.model.Source
 
 @Composable
-fun SourceCard(source: Source, onClick: (String) -> Unit) {
+fun SourceCard(source: Source, onClick: (Source) -> Unit) {
     Card(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
             .wrapContentHeight()
-            .clickable { onClick(source.id) }, elevation = 5.dp, backgroundColor = Color.White
+            .clickable { onClick(source) }, elevation = 5.dp, backgroundColor = Color.White
     ) {
         Column(Modifier.padding(8.dp)) {
             Text(
