@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.flow
 
 class GetSourceListUseCase(private val repo: SourceRepository) {
     operator fun invoke(): Flow<UiState<List<Source>>> = flow {
+        emit(UiState.Loading)
         val result = repo.getAll()
         result.fold(onSuccess = {
             emit(UiState.Success(it))
