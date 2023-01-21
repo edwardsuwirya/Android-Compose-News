@@ -5,18 +5,18 @@ import com.enigmacamp.newsCompose.model.Source
 import javax.inject.Inject
 
 class SourceRepositoryImpl @Inject constructor(private val api: NewsApi) : SourceRepository {
-    override suspend fun getAll(): List<Source> {
-        try {
+    override suspend fun getAll(): Result<List<Source>> {
+        return try {
             val response = api.getSources()
             if (response.isSuccessful) {
                 response.body().let {
-                    return response.body()!!
+                    Result.success(response.body()!!)
                 }
             } else {
-                throw Exception("Request can not be processed")
+                Result.success(emptyList())
             }
         } catch (e: Exception) {
-            throw Exception(e.message)
+            Result.failure(e)
         }
     }
 
