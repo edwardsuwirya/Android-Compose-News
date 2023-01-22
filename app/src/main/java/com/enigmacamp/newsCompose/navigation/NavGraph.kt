@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.enigmacamp.newsCompose.ui.screens.article.ArticleScreen
+import com.enigmacamp.newsCompose.ui.screens.article.ArticleWebView
 import com.enigmacamp.newsCompose.ui.screens.category.CategoryScreen
 import com.enigmacamp.newsCompose.ui.screens.source.SourceScreen
 
@@ -28,19 +29,16 @@ fun NavGraph(
         }
     }
     NavHost(
-        navController = navController,
-        startDestination = startDestination
-    )
-    {
+        navController = navController, startDestination = startDestination
+    ) {
         composable(route = Screens.Category.route) {
             BackHandler {
                 finishActivity()
             }
             CategoryScreen()
         }
-        composable(route = "${Screens.Source.route}/{category}", arguments = listOf(
-            navArgument("category") { type = NavType.StringType }
-        )) {
+        composable(route = "${Screens.Source.route}/{category}",
+            arguments = listOf(navArgument("category") { type = NavType.StringType })) {
             BackHandler {
                 navController.navigateUp()
             }
@@ -50,8 +48,7 @@ fun NavGraph(
         }
         composable(route = "${Screens.Article.route}/{sourceId}/{sourceName}", arguments = listOf(
             navArgument("sourceId") { type = NavType.StringType },
-            navArgument("sourceName") { type = NavType.StringType }
-        )) {
+            navArgument("sourceName") { type = NavType.StringType })) {
             BackHandler {
                 navController.navigateUp()
             }
@@ -59,6 +56,15 @@ fun NavGraph(
             val currentSourceId = arguments.getString("sourceId", "")
             val currentSourceName = arguments.getString("sourceName", "")
             ArticleScreen(currentSourceId, currentSourceName)
+        }
+        composable(route = "${Screens.ArticleWebView.route}/{url}",
+            arguments = listOf(navArgument("url") { type = NavType.StringType })) {
+            BackHandler {
+                navController.navigateUp()
+            }
+            val arguments = requireNotNull(it.arguments)
+            val url = arguments.getString("url", "")
+            ArticleWebView(url)
         }
     }
 }

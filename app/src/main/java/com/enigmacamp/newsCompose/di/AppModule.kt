@@ -11,11 +11,13 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 class AppModule {
     @Provides
+    @Singleton
     fun provideRetrofit(
     ): Retrofit {
         val client = OkHttpClient
@@ -36,6 +38,7 @@ class AppModule {
     }
 
     @Provides
+    @Singleton
     fun provideAuthApi(retrofit: Retrofit): NewsApi {
         return retrofit.create(NewsApi::class.java)
     }

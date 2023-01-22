@@ -5,6 +5,9 @@ plugins {
     id 'com.google.dagger.hilt.android'
 }
 
+def localProperties = new Properties()
+localProperties.load(new FileInputStream(rootProject.file("local.properties")))
+
 android {
     namespace 'com.enigmacamp.newsCompose'
     compileSdk 33
@@ -20,7 +23,7 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
-        buildConfigField("String", "BASE_URL", "\"http://10.10.100.175:3004/news/\"")
+        buildConfigField("String", "BASE_URL", "\"" + localProperties['base.url'] + "\"")
     }
 
     buildTypes {
@@ -54,6 +57,7 @@ android {
 
 dependencies {
     implementation 'com.google.accompanist:accompanist-swiperefresh:0.27.0'
+    implementation 'com.google.accompanist:accompanist-webview:0.29.0-alpha'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-moshi:2.9.0'
 

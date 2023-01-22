@@ -6,14 +6,14 @@ import com.enigmacamp.newsCompose.repository.SourceRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class GetSourceListUseCase(private val repo: SourceRepository) {
-    operator fun invoke(): Flow<UiState<List<Source>>> = flow {
-        emit(UiState.Loading)
-        val result = repo.getAll()
-        result.fold(onSuccess = {
-            emit(UiState.Success(it))
-        }, onFailure = {
-            emit(UiState.Error(it.message))
-        })
-    }
+fun interface GetSourceListUseCase : () -> Flow<UiState<List<Source>>>
+
+fun getSourceList(repo: SourceRepository) = flow {
+    emit(UiState.Loading)
+    val result = repo.getAll()
+    result.fold(onSuccess = {
+        emit(UiState.Success(it))
+    }, onFailure = {
+        emit(UiState.Error(it.message))
+    })
 }

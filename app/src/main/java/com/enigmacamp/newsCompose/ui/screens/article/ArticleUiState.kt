@@ -8,6 +8,6 @@ data class ArticleUiState(
     val articles: List<Article> = emptyList(),
     val error: String? = null,
     val endReached: Boolean = false,
-    val page: Int = 0
+    val page: Int = 0,
 )
 

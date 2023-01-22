@@ -20,6 +20,9 @@ class SourceViewModel @Inject constructor(private val getSourceList: GetSourceLi
             is SourceEvent.SourceList -> getSources()
             is SourceEvent.SourceListRefresh -> refresh()
             is SourceEvent.SourceSelected -> Navigator.navigateToArticle(event.id, event.name)
+            is SourceEvent.Dismissed -> _sourceState.update {
+                it.copy(error = "")
+            }
         }
     }
 

@@ -22,20 +22,26 @@ fun SourceScreen(
     val scaffoldState = rememberScaffoldState()
 
     if (state.error.isNotEmpty()) {
-        LaunchedEffect(Unit) {
+        LaunchedEffect(scaffoldState) {
             scaffoldState.snackbarHostState.showSnackbar(
                 message = "Error",
                 duration = SnackbarDuration.Short
-            )
+            ).also {
+                when (it) {
+                    SnackbarResult.Dismissed -> viewModel.onEvent(SourceEvent.Dismissed)
+                    else -> {}
+                }
+            }
         }
     }
 
     LaunchedEffect(state.isInit) {
         viewModel.onEvent(SourceEvent.SourceList)
     }
-    Scaffold(scaffoldState = scaffoldState) {
+    Scaffold(topBar = {
+        TopAppBar(title = { Text(text = category.uppercase()) })
+    }, scaffoldState = scaffoldState) {
         Content(
-            category = category,
             state = state,
             onEvent = viewModel::onEvent
         )
@@ -43,10 +49,9 @@ fun SourceScreen(
 }
 
 @Composable
-fun Content(category: String, state: SourceUiState, onEvent: (SourceEvent) -> Unit) {
+fun Content(state: SourceUiState, onEvent: (SourceEvent) -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.padding(4.dp)) {
-            Text(text = "Source Screen - $category")
             Button(onClick = { onEvent(SourceEvent.SourceListRefresh) }) {
                 Text(text = "Refresh")
             }

@@ -14,6 +14,12 @@ sealed class Screens(val route: String) {
             "sourceId" to sourceId, "sourceName" to sourceName
         )
     }
+
+    object ArticleWebView : Screens("articleWebView") {
+        operator fun invoke(url: String) = route.appendParams(
+            "url" to url
+        )
+    }
 }
 
 internal fun String.appendParams(vararg params: Pair<String, Any?>): String {

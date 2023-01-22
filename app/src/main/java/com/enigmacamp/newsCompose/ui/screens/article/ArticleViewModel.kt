@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.enigmacamp.newsCompose.common.DefaultPaginator
+import com.enigmacamp.newsCompose.navigation.Navigator
 import com.enigmacamp.newsCompose.repository.ArticleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,7 +57,7 @@ class ArticleViewModel @Inject constructor(articleRepository: ArticleRepository)
                 paginator.loadNextItems()
             }
             is ArticleEvent.ArticleSelected -> {
-                Log.d("Paging", "Select Article")
+                Navigator.navigateToArticleWebView("https://www.boltuix.com/")
             }
         }
     }
