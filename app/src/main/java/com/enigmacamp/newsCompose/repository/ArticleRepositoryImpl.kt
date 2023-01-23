@@ -3,6 +3,8 @@ package com.enigmacamp.newsCompose.repository
 import android.util.Log
 import com.enigmacamp.newsCompose.model.Article
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class ArticleRepositoryImpl @Inject constructor() : ArticleRepository {
@@ -14,12 +16,12 @@ class ArticleRepositoryImpl @Inject constructor() : ArticleRepository {
         )
     }
 
-    override suspend fun getAll(page: Int, pageSize: Int): Result<List<Article>> {
+    override suspend fun getAll(page: Int, pageSize: Int): Flow<Result<List<Article>>> = flow {
         Log.d("Paging", "Called $page")
         delay(1000L)
         val startingIndex = page * pageSize
-        return if (startingIndex + pageSize <= remoteDataSource.size) {
-            Result.success(remoteDataSource.slice(startingIndex until startingIndex + pageSize))
-        } else Result.success(emptyList())
+        if (startingIndex + pageSize <= remoteDataSource.size) {
+            emit(Result.success(remoteDataSource.slice(startingIndex until startingIndex + pageSize)))
+        } else emit(Result.success(emptyList()))
     }
 }

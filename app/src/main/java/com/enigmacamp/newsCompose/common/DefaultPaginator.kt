@@ -1,32 +1,29 @@
 package com.enigmacamp.newsCompose.common
 
-class DefaultPaginator<Key, Item>(
+class DefaultPaginator<Key>(
     private val initialKey: Key,
     private val onLoadUpdated: (Boolean) -> Unit,
-    private val onRequest: suspend (nextKey: Key) -> Result<List<Item>>,
-    private val getNextKey: suspend () -> Key,
-    private val onError: suspend (Throwable?) -> Unit,
-    private val onSuccess: suspend (items: List<Item>, newKey: Key) -> Unit
-) : Paginator<Key, Item> {
+    private val onRequest: suspend (nextKey: Key, makingRequest: (Boolean) -> Unit, getNextKey: (Key) -> Unit) -> Unit,
+) : Paginator<Key> {
     private var currentKey = initialKey
-    private var isMakingRequest = false
+    var isMakingRequest = false
+
 
     override suspend fun loadNextItems() {
         if (isMakingRequest) {
             return
         }
-        isMakingRequest = true
+        toggleMakingRequest(true)
         onLoadUpdated(true)
-        val result = onRequest(currentKey)
-        isMakingRequest = false
-        val items = result.getOrElse {
-            onError(it)
-            onLoadUpdated(false)
-            return
-        }
-        currentKey = getNextKey()
-        onSuccess(items, currentKey)
-        onLoadUpdated(false)
+        onRequest(currentKey, ::toggleMakingRequest, ::getNextKey)
+    }
+
+    private fun getNextKey(newKey: Key) {
+        currentKey = newKey
+    }
+
+    private fun toggleMakingRequest(isRequesting: Boolean) {
+        isMakingRequest = isRequesting
     }
 
     override fun reset() {
