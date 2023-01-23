@@ -16,6 +16,8 @@ class UseCaseModule {
     @Provides
     @ViewModelScoped
     fun provideGetSourceList(sourceRepository: SourceRepository): GetSourceListUseCase {
-        return GetSourceListUseCase { getSourceList(sourceRepository) }
+        return GetSourceListUseCase {
+            getSourceList(it, sourceRepository)
+        }
     }
 }

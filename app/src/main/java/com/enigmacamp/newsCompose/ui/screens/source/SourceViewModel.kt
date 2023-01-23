@@ -1,16 +1,21 @@
 package com.enigmacamp.newsCompose.ui.screens.source
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.enigmacamp.newsCompose.common.UiState
+import com.enigmacamp.newsCompose.common.DispatcherProvider
 import com.enigmacamp.newsCompose.navigation.Navigator
 import com.enigmacamp.newsCompose.usecase.GetSourceListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
-class SourceViewModel @Inject constructor(private val getSourceList: GetSourceListUseCase) :
+class SourceViewModel @Inject constructor(
+    private val getSourceList: GetSourceListUseCase,
+    private val dispatchers: DispatcherProvider
+) :
     ViewModel() {
     private var _sourceState = MutableStateFlow(SourceUiState())
     val sourceState = _sourceState.asStateFlow()
@@ -28,34 +33,81 @@ class SourceViewModel @Inject constructor(private val getSourceList: GetSourceLi
 
     private fun getSources() {
         if (sourceState.value.isInit) {
-            getSourceList().onEach { res ->
-                when (res) {
-                    is UiState.Loading -> _sourceState.update {
-                        it.copy(isLoading = true, isInit = false)
+//            viewModelScope.launch {
+            Log.d("News", "VM: Exec")
+            getSourceList("m")
+                .onStart {
+                    if (_sourceState.value.isRefreshing) {
+                        _sourceState.update {
+                            it.copy(
+                                isInit = false,
+                                isLoading = false,
+                                error = "",
+                                sources = emptyList()
+                            )
+                        }
+                    } else {
+                        _sourceState.update {
+                            it.copy(
+                                isInit = false,
+                                isRefreshing = false,
+                                isLoading = true,
+                                error = "",
+                                sources = emptyList()
+                            )
+                        }
                     }
-                    is UiState.Error -> _sourceState.update {
-                        it.copy(
-                            isLoading = false,
-                            isInit = false,
-                            error = res.errorMessage.toString()
-                        )
-                    }
-                    is UiState.Success -> _sourceState.update {
-                        it.copy(
-                            isLoading = false,
-                            isInit = false,
-                            sources = res.data,
-                        )
-                    }
-                }
-            }.launchIn(viewModelScope)
 
+                }
+                .onEach { res ->
+                    Log.d("News", "VM: Each")
+                    res.fold(onFailure = { e ->
+                        if (e is IOException) {
+                            _sourceState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    isRefreshing = false,
+                                    isInit = false,
+                                    error = ""
+                                )
+                            }
+                        } else {
+                            _sourceState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    isRefreshing = false,
+                                    isInit = false,
+                                    error = e.message.toString()
+                                )
+                            }
+                        }
+                    }, onSuccess = { data ->
+                        Log.d("News", "VM: ${data.toString()}")
+                        _sourceState.update {
+                            it.copy(
+                                isLoading = false,
+                                isRefreshing = false,
+                                isInit = false,
+                                sources = data,
+                            )
+                        }
+                    }
+                    )
+                }
+                .flowOn(dispatchers.io)
+                .launchIn(viewModelScope)
         }
     }
 
     private fun refresh() {
         _sourceState.update {
-            it.copy(isInit = true, error = "", sources = emptyList())
+            it.copy(
+                isRefreshing = true,
+                isLoading = false,
+                isInit = true,
+                error = "",
+                sources = emptyList()
+            )
         }
     }
 }

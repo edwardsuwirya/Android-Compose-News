@@ -9,8 +9,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.enigmacamp.newsCompose.ui.components.Loading
 import com.enigmacamp.newsCompose.ui.components.SourceCard
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
+import com.google.accompanist.swiperefresh.SwipeRefreshState
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -35,6 +38,8 @@ fun SourceScreen(
         }
     }
 
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = state.isRefreshing)
+
     LaunchedEffect(state.isInit) {
         viewModel.onEvent(SourceEvent.SourceList)
     }
@@ -43,37 +48,53 @@ fun SourceScreen(
     }, scaffoldState = scaffoldState) {
         Content(
             state = state,
+            swipeState = swipeRefreshState,
             onEvent = viewModel::onEvent
         )
     }
 }
 
 @Composable
-fun Content(state: SourceUiState, onEvent: (SourceEvent) -> Unit) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.padding(4.dp)) {
-            Button(onClick = { onEvent(SourceEvent.SourceListRefresh) }) {
-                Text(text = "Refresh")
-            }
-            if (state.sources.isEmpty()) {
-                Text(text = "No data")
-            } else {
+fun Content(state: SourceUiState, swipeState: SwipeRefreshState, onEvent: (SourceEvent) -> Unit) {
+    SwipeRefresh(
+        state = swipeState,
+        indicator = { indicatorState, refreshTrigger ->
+            SwipeRefreshIndicator(state = indicatorState, refreshTriggerDistance = refreshTrigger)
+        },
+        onRefresh = { onEvent(SourceEvent.SourceListRefresh) }) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.padding(4.dp)) {
                 val list = state.sources
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
                     contentPadding = PaddingValues(8.dp)
                 ) {
-                    items(list) { s ->
-                        SourceCard(s) {
-                            onEvent(SourceEvent.SourceSelected(it.id, it.title))
+                    if (state.sources.isEmpty()) {
+                        item {
+                            Text(text = "No Data")
+                        }
+                    } else {
+                        items(list) { s ->
+                            SourceCard(s) {
+                                onEvent(SourceEvent.SourceSelected(it.id, it.title))
+                            }
+                        }
+                    }
+                    item {
+                        if (state.isLoading) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
                         }
                     }
                 }
             }
         }
-        if (state.isLoading) {
-            Loading()
-        }
-
     }
+
 }

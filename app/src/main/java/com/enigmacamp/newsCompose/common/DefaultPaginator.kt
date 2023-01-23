@@ -4,7 +4,7 @@ class DefaultPaginator<Key, Item>(
     private val initialKey: Key,
     private val onLoadUpdated: (Boolean) -> Unit,
     private val onRequest: suspend (nextKey: Key) -> Result<List<Item>>,
-    private val getNextKey: suspend (List<Item>) -> Key,
+    private val getNextKey: suspend () -> Key,
     private val onError: suspend (Throwable?) -> Unit,
     private val onSuccess: suspend (items: List<Item>, newKey: Key) -> Unit
 ) : Paginator<Key, Item> {
@@ -24,7 +24,7 @@ class DefaultPaginator<Key, Item>(
             onLoadUpdated(false)
             return
         }
-        currentKey = getNextKey(items)
+        currentKey = getNextKey()
         onSuccess(items, currentKey)
         onLoadUpdated(false)
     }

@@ -9,12 +9,13 @@ import com.enigmacamp.newsCompose.repository.ArticleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ArticleViewModel @Inject constructor(articleRepository: ArticleRepository) : ViewModel() {
-    var _state = MutableStateFlow(ArticleUiState())
+    private var _state = MutableStateFlow(ArticleUiState())
     val state = _state.asStateFlow()
 
     private val paginator = DefaultPaginator(
@@ -43,13 +44,14 @@ class ArticleViewModel @Inject constructor(articleRepository: ArticleRepository)
     fun onEvent(event: ArticleEvent) {
         when (event) {
             is ArticleEvent.Refresh -> {
-                Log.d("Paging", "Refresh")
-                _state.value =
-                    _state.value.copy(
+                Log.d("News", "Article Refresh")
+                _state.update {
+                    it.copy(
                         isRefreshing = true,
                         page = 0,
                         articles = emptyList(),
                     )
+                }
                 paginator.reset()
                 onEvent(ArticleEvent.LoadNext)
             }

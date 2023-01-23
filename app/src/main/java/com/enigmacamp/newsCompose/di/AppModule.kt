@@ -1,6 +1,8 @@
 package com.enigmacamp.newsCompose.di
 
 import com.enigmacamp.newsCompose.BuildConfig
+import com.enigmacamp.newsCompose.common.DispatcherProvider
+import com.enigmacamp.newsCompose.common.StandardDispatcher
 import com.enigmacamp.newsCompose.data.remote.NewsApi
 import dagger.Module
 import dagger.Provides
@@ -16,6 +18,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class AppModule {
+    @Provides
+    @Singleton
+    fun provideDispatcher(): DispatcherProvider {
+        return StandardDispatcher()
+    }
+
     @Provides
     @Singleton
     fun provideRetrofit(

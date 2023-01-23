@@ -1,17 +1,22 @@
 package com.enigmacamp.newsCompose.data.remote
 
+import android.util.Log
 import retrofit2.Response
+import java.io.IOException
+import java.net.ConnectException
 
-suspend fun <T> getResponse(request: suspend () -> Response<T>): Result<T> {
+suspend fun <T> getResponse(request: suspend () -> Response<T>): T {
     return try {
         val result = request()
 
         if (result.isSuccessful) {
-            Result.success(result.body()!!)
+            result.body()!!
         } else {
-            Result.failure(Exception("Fail to get response"))
+            Log.d("News", "Utils: Response failed")
+            throw Exception("Failed to get response")
         }
-    } catch (e: Throwable) {
-        Result.failure(e)
+    } catch (e: ConnectException) {
+        Log.d("News", "Utils: Client failed $e")
+        throw IOException("Failed to connect")
     }
 }
